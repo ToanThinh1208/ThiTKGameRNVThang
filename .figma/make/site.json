@@ -1,0 +1,10 @@
+{
+  "description": "Trò chơi bàn cờ tiếng Việt dành cho lớp học, giúp 2–6 nhóm khám phá lịch sử Đổi mới Việt Nam qua câu hỏi, thử thách và tính điểm.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
