@@ -1,3 +1,5 @@
+import type React from "react";
+
 export function Icon({ name, size = 20 }: { name: string; size?: number }) {
   const paths: Record<string, React.ReactNode> = {
     arrow: <path d="M5 12h14m-5-5 5 5-5 5" />,
@@ -68,62 +70,3 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
   );
 }
 
-export function Pawn({
-  color,
-  id,
-  className = "",
-}: {
-  color: string;
-  id?: number;
-  className?: string;
-}) {
-  return (
-    <svg className={`pawn ${className}`} viewBox="0 0 50 62" aria-hidden="true">
-      <ellipse cx="25" cy="54" rx="23" ry="7" fill="#183f3120" />
-      <ellipse cx="25" cy="48" rx="21" ry="10" fill={color} stroke="#0003" strokeWidth="1.5" />
-      <path
-        d="M8 45Q15 32 17 17Q18 6 25 6Q32 6 33 17Q35 32 42 45Q25 57 8 45Z"
-        fill={color}
-        stroke="#0003"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M20 16Q18 31 15 40"
-        stroke="white"
-        opacity=".45"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      {id && (
-        <text
-          x="26"
-          y="35"
-          textAnchor="middle"
-          fill="white"
-          fontSize="17"
-          fontWeight="900"
-          fontFamily="Nunito"
-        >
-          {id}
-        </text>
-      )}
-    </svg>
-  );
-}
-export function Dice({ value, rolling = false }: { value: number; rolling?: boolean }) {
-  const dots: Record<number, number[]> = {
-    1: [4],
-    2: [0, 8],
-    3: [0, 4, 8],
-    4: [0, 2, 6, 8],
-    5: [0, 2, 4, 6, 8],
-    6: [0, 2, 3, 5, 6, 8],
-  };
-  return (
-    <div className={`dice ${rolling ? "rolling" : ""}`} aria-label={`Xúc xắc ${value} điểm`}>
-      {Array.from({ length: 9 }, (_, i) => (
-        <span key={i} className={dots[value].includes(i) ? "dot visible" : "dot"} />
-      ))}
-    </div>
-  );
-}

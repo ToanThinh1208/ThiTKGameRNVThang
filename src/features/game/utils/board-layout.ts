@@ -1,10 +1,14 @@
-import { BOARD_LABELS, NUMBER_ANCHORS } from "./board-art.ts";
+import {
+  BOARD_LABELS,
+  NUMBER_ANCHORS,
+} from "../../../shared/constants/board-art.ts";
+import type { Rect } from "../types.ts";
 
-export type Rect = { x: number; y: number; width: number; height: number };
 export function numberLayout(cell: number) {
   const anchor = NUMBER_ANCHORS[cell] ?? { x: 12, y: 43 };
   return { ...anchor, fontSize: anchor.fontSize ?? (cell === 30 ? 43 : 44) };
 }
+
 export function labelLayout(cell: number) {
   const label = BOARD_LABELS[cell];
   return label
@@ -18,12 +22,14 @@ export function labelLayout(cell: number) {
       }
     : null;
 }
+
 export function rectGap(a: Rect, b: Rect) {
   return Math.hypot(
     Math.max(a.x - b.x - b.width, b.x - a.x - a.width, 0),
     Math.max(a.y - b.y - b.height, b.y - a.y - a.height, 0),
   );
 }
+
 export function numberBounds(cell: number): Rect {
   const n = numberLayout(cell);
   // Conservative Nunito ink bounds, including the outline, for token placement.
@@ -34,8 +40,10 @@ export function numberBounds(cell: number): Rect {
     height: n.fontSize * 0.8 + 4,
   };
 }
+
 type Piece = Rect;
 const pieceCache = new Map<string, Piece[]>();
+
 export function pieceLayout(cell: number, count: number): Piece[] {
   const key = `${cell}:${count}`,
     cached = pieceCache.get(key);
@@ -64,9 +72,16 @@ export function pieceLayout(cell: number, count: number): Piece[] {
             width,
             height,
           }));
-          if (pieces.some((piece) => forbidden.some((rect) => rectGap(piece, rect) < 6))) continue;
+          if (
+            pieces.some((piece) =>
+              forbidden.some((rect) => rectGap(piece, rect) < 6),
+            )
+          )
+            continue;
           const score =
-            (x + totalWidth / 2 - 60) ** 2 + (y + totalHeight / 2 - 65) ** 2 + (rows - 1) * 200;
+            (x + totalWidth / 2 - 60) ** 2 +
+            (y + totalHeight / 2 - 65) ** 2 +
+            (rows - 1) * 200;
           if (!best || score < best.score) best = { score, pieces };
         }
     }

@@ -1,18 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { EVENTS, LADDERS, QUESTIONS, SNAKES } from "../src/shared/constants/game-data.ts";
 import {
   advanceTurn,
+  cellPoint,
   getRaceWinner,
   landingPosition,
-  cellPoint,
-  EVENTS,
-  LADDERS,
-  SNAKES,
-  QUESTIONS,
   makeTeams,
   rankTeams,
   resolveAnswer,
-} from "../src/game.ts";
+} from "../src/features/game/utils/game-logic.ts";
 
 test("board has 30 unique square positions in the prescribed zigzag order", () => {
   assert.deepEqual(cellPoint(1), { x: 60, y: 540 });

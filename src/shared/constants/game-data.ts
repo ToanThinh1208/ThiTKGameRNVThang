@@ -1,16 +1,31 @@
-export const COLORS = ["#E64B45", "#62A746", "#3869D6", "#E9B82F", "#EB883D", "#9364C5"];
-export const LADDERS: Record<number, number> = { 6: 18, 11: 14, 15: 22, 21: 28, 23: 26 };
-export const SNAKES: Record<number, number> = { 16: 3, 20: 5, 25: 12, 27: 22, 29: 19 };
-export const EVENTS = [2, 3, 4, 5, 7, 9, 10, 12, 13, 14, 17, 18, 19, 22, 24, 26, 28];
-export type Team = { id: number; position: number; score: number; finished: boolean };
-export type Question = {
-  title: string;
-  year: string;
-  question: string;
-  answers: string[];
-  correct: number;
-  explanation: string;
+import type { Question } from "../../features/game/types.ts";
+
+export const COLORS = [
+  "#E64B45",
+  "#62A746",
+  "#3869D6",
+  "#E9B82F",
+  "#EB883D",
+  "#9364C5",
+];
+export const LADDERS: Record<number, number> = {
+  6: 18,
+  11: 14,
+  15: 22,
+  21: 28,
+  23: 26,
 };
+export const SNAKES: Record<number, number> = {
+  16: 3,
+  20: 5,
+  25: 12,
+  27: 22,
+  29: 19,
+};
+export const EVENTS = [
+  2, 3, 4, 5, 7, 9, 10, 12, 13, 14, 17, 18, 19, 22, 24, 26, 28,
+];
+
 const q = (
   title: string,
   year: string,
@@ -19,6 +34,7 @@ const q = (
   correct: number,
   explanation: string,
 ): Question => ({ title, year, question, answers, correct, explanation });
+
 export const QUESTIONS: Record<number, Question> = {
   2: q(
     "Bối cảnh Đổi mới",
@@ -48,7 +64,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Luật Đầu tư",
     "1987",
     "Luật Đầu tư nước ngoài năm 1987 tạo điều kiện cho hoạt động nào?",
-    ["Đóng cửa thị trường", "Xóa bỏ mọi doanh nghiệp", "Thu hút vốn và công nghệ từ nước ngoài"],
+    [
+      "Đóng cửa thị trường",
+      "Xóa bỏ mọi doanh nghiệp",
+      "Thu hút vốn và công nghệ từ nước ngoài",
+    ],
     2,
     "Luật Đầu tư nước ngoài tạo khung pháp lý quan trọng để thu hút nguồn vốn, công nghệ và kinh nghiệm quản lý.",
   ),
@@ -64,7 +84,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Xuất khẩu gạo",
     "1989",
     "Để giữ vững thành tựu xuất khẩu gạo, Việt Nam cần tránh điều gì?",
-    ["Nâng cao chất lượng gạo", "Chủ quan, chỉ chạy theo sản lượng", "Mở rộng thị trường phù hợp"],
+    [
+      "Nâng cao chất lượng gạo",
+      "Chủ quan, chỉ chạy theo sản lượng",
+      "Mở rộng thị trường phù hợp",
+    ],
     1,
     "Năm 1989, Việt Nam trở thành nước xuất khẩu gạo quan trọng. Phát triển bền vững đòi hỏi chất lượng, hiệu quả và an ninh lương thực.",
   ),
@@ -124,7 +148,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Khủng hoảng châu Á",
     "1997",
     "Bài học từ khủng hoảng tài chính châu Á là gì?",
-    ["Bỏ qua rủi ro tài chính", "Giữ ổn định vĩ mô và quản lý rủi ro", "Ngừng mọi hợp tác khu vực"],
+    [
+      "Bỏ qua rủi ro tài chính",
+      "Giữ ổn định vĩ mô và quản lý rủi ro",
+      "Ngừng mọi hợp tác khu vực",
+    ],
     1,
     "Khủng hoảng năm 1997 cho thấy tầm quan trọng của hệ thống tài chính lành mạnh và ổn định kinh tế vĩ mô.",
   ),
@@ -168,7 +196,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Phát triển con người",
     "2004",
     "Yếu tố nào là động lực quan trọng cho phát triển lâu dài?",
-    ["Giáo dục và chất lượng nguồn nhân lực", "Chỉ khai thác tài nguyên", "Bỏ qua y tế"],
+    [
+      "Giáo dục và chất lượng nguồn nhân lực",
+      "Chỉ khai thác tài nguyên",
+      "Bỏ qua y tế",
+    ],
     0,
     "Giáo dục, y tế và chất lượng nguồn nhân lực là nền tảng để tăng trưởng gắn với tiến bộ xã hội.",
   ),
@@ -176,7 +208,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Môi trường",
     "2005",
     "Phát triển bền vững đòi hỏi kết hợp tăng trưởng kinh tế với điều gì?",
-    ["Khai thác bằng mọi giá", "Bỏ qua ô nhiễm", "Tiến bộ xã hội và bảo vệ môi trường"],
+    [
+      "Khai thác bằng mọi giá",
+      "Bỏ qua ô nhiễm",
+      "Tiến bộ xã hội và bảo vệ môi trường",
+    ],
     2,
     "Luật Bảo vệ môi trường năm 2005 góp phần hoàn thiện nền tảng pháp lý cho phát triển bền vững.",
   ),
@@ -184,7 +220,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Đổi mới sáng tạo",
     "2006",
     "Điều gì giúp nâng cao sức cạnh tranh của nền kinh tế?",
-    ["Chỉ dựa vào lao động giá rẻ", "Ứng dụng khoa học và công nghệ", "Hạn chế sáng tạo"],
+    [
+      "Chỉ dựa vào lao động giá rẻ",
+      "Ứng dụng khoa học và công nghệ",
+      "Hạn chế sáng tạo",
+    ],
     1,
     "Khoa học, công nghệ và đổi mới sáng tạo giúp nâng cao năng suất, chất lượng và sức cạnh tranh.",
   ),
@@ -200,7 +240,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Kinh tế toàn cầu",
     "2008",
     "Khủng hoảng tài chính toàn cầu năm 2008 nhắc nhở điều gì?",
-    ["Không cần dự phòng", "Hội nhập không có rủi ro", "Cần chủ động ứng phó các cú sốc bên ngoài"],
+    [
+      "Không cần dự phòng",
+      "Hội nhập không có rủi ro",
+      "Cần chủ động ứng phó các cú sốc bên ngoài",
+    ],
     2,
     "Hội nhập mang lại cơ hội nhưng cũng đòi hỏi khả năng chống chịu và chính sách ứng phó linh hoạt.",
   ),
@@ -220,7 +264,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Rủi ro quản trị",
     "2010",
     "Để hạn chế rủi ro quản trị, cần ưu tiên điều gì?",
-    ["Minh bạch và trách nhiệm giải trình", "Che giấu thông tin", "Buông lỏng giám sát"],
+    [
+      "Minh bạch và trách nhiệm giải trình",
+      "Che giấu thông tin",
+      "Buông lỏng giám sát",
+    ],
     0,
     "Quản trị minh bạch, giám sát hiệu quả và trách nhiệm giải trình giúp sử dụng nguồn lực tốt hơn.",
   ),
@@ -228,7 +276,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Tái cơ cấu",
     "2011",
     "Tái cơ cấu kinh tế gắn với đổi mới mô hình tăng trưởng nhằm mục tiêu nào?",
-    ["Chỉ tăng số lượng", "Hạn chế năng suất", "Nâng cao chất lượng và hiệu quả tăng trưởng"],
+    [
+      "Chỉ tăng số lượng",
+      "Hạn chế năng suất",
+      "Nâng cao chất lượng và hiệu quả tăng trưởng",
+    ],
     2,
     "Đổi mới mô hình tăng trưởng chú trọng chất lượng, năng suất và hiệu quả thay vì chỉ mở rộng quy mô.",
   ),
@@ -260,7 +312,11 @@ export const QUESTIONS: Record<number, Question> = {
     "Chỉnh đốn Đảng",
     "2016",
     "Xây dựng, chỉnh đốn Đảng gắn liền với yêu cầu nào?",
-    ["Phòng, chống tham nhũng và suy thoái", "Giảm trách nhiệm cán bộ", "Bỏ qua giám sát"],
+    [
+      "Phòng, chống tham nhũng và suy thoái",
+      "Giảm trách nhiệm cán bộ",
+      "Bỏ qua giám sát",
+    ],
     0,
     "Xây dựng, chỉnh đốn Đảng nhằm nâng cao năng lực lãnh đạo, sức chiến đấu và củng cố niềm tin của nhân dân.",
   ),
@@ -277,44 +333,3 @@ export const QUESTIONS: Record<number, Question> = {
     "CPTPP được ký năm 2018, mở thêm cơ hội hợp tác, đồng thời đặt ra yêu cầu nâng cao năng lực cạnh tranh.",
   ),
 };
-export const makeTeams = (count: number): Team[] =>
-  Array.from({ length: count }, (_, i) => ({ id: i + 1, position: 1, score: 0, finished: false }));
-const hasFinished = (team: Team) => team.finished || team.position >= 30;
-export const getRaceWinner = (teams: Team[]) => teams.find(hasFinished);
-export const landingPosition = (position: number, die: number) => Math.min(30, position + die);
-export const rankTeams = (teams: Team[]) =>
-  [...teams].sort(
-    (a, b) =>
-      Number(hasFinished(b)) - Number(hasFinished(a)) ||
-      b.score - a.score ||
-      b.position - a.position ||
-      a.id - b.id,
-  );
-export function advanceTurn(teams: Team[], turn: number, round: number) {
-  if (getRaceWinner(teams)) return { turn, round, ended: true };
-  const next = (turn + 1) % teams.length;
-  return { turn: next, round: round + (next === 0 ? 1 : 0), ended: false };
-}
-export const cellPoint = (n: number) => {
-  const row = Math.floor((n - 1) / 6);
-  const col = row % 2 ? 5 - ((n - 1) % 6) : (n - 1) % 6;
-  return { x: col * 120 + 60, y: (4 - row) * 120 + 60 };
-};
-export function resolveAnswer(position: number, correct: boolean) {
-  const ladder = !!LADDERS[position],
-    snake = !!SNAKES[position];
-  return {
-    points: correct ? (ladder ? 100 : 80) : snake ? -40 : -20,
-    destination:
-      correct && ladder ? LADDERS[position] : !correct && snake ? SNAKES[position] : position,
-    message: correct
-      ? ladder
-        ? "Leo thang!"
-        : snake
-          ? "Né được rắn!"
-          : "Chính xác!"
-      : snake
-        ? "Bị rắn cắn!"
-        : "Thêm một bài học!",
-  };
-}

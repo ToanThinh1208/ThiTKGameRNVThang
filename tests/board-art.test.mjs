@@ -1,15 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cellPoint, LADDERS, SNAKES, EVENTS, QUESTIONS } from "../src/game.ts";
+import { EVENTS, LADDERS, QUESTIONS, SNAKES } from "../src/shared/constants/game-data.ts";
+import { cellPoint } from "../src/features/game/utils/game-logic.ts";
 import {
   BOARD_COLORS,
   BOARD_LABELS,
   LADDER_ART,
   SNAKE_ART,
+} from "../src/shared/constants/board-art.ts";
+import {
   connectionPoint,
   snakePoint,
   snakeRibbon,
-} from "../src/board-art.ts";
+} from "../src/features/game/utils/board-geometry.ts";
 
 const inside = (point, cell) => {
   const center = cellPoint(cell);

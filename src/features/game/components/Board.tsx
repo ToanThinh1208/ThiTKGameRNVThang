@@ -1,33 +1,59 @@
 import { useId, type CSSProperties } from "react";
-import { Pawn } from "./components";
-import { cellPoint, COLORS, LADDERS, SNAKES, QUESTIONS, type Team } from "./game";
+import { Pawn } from "@/shared/components";
 import {
   BOARD_COLORS,
   BOARD_LABELS,
   LADDER_ART,
   SNAKE_ART,
-  snakePath,
-  snakePoint,
-  snakeRibbon,
-} from "./board-art";
-import { labelLayout, numberLayout, pieceLayout } from "./board-layout";
+} from "../../../shared/constants/board-art";
+import {
+  COLORS,
+  LADDERS,
+  QUESTIONS,
+  SNAKES,
+} from "../../../shared/constants/game-data";
+import type { MotionState, Team } from "../types";
+import { snakePath, snakePoint, snakeRibbon } from "../utils/board-geometry";
+import { labelLayout, numberLayout, pieceLayout } from "../utils/board-layout";
+import { cellPoint } from "../utils/game-logic";
 
 const CELLS = Array.from({ length: 30 }, (_, i) => i + 1);
-function Ladder({ from, to, filter }: { from: number; to: number; filter: string }) {
+
+function Ladder({
+  from,
+  to,
+  filter,
+}: {
+  from: number;
+  to: number;
+  filter: string;
+}) {
   const { from: a, to: b } = LADDER_ART[from];
   const length = Math.hypot(b.x - a.x, b.y - a.y);
   const angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
   const count = Math.max(4, Math.round(length / 27));
   return (
-    <g className="map-ladder" data-from={from} data-to={to} filter={`url(#${filter})`}>
+    <g
+      className="map-ladder"
+      data-from={from}
+      data-to={to}
+      filter={`url(#${filter})`}
+    >
       <title>
         Thang: ô {from} lên ô {to}
       </title>
-      <g transform={`translate(${a.x},${a.y}) rotate(${angle})`} strokeLinecap="square">
+      <g
+        transform={`translate(${a.x},${a.y}) rotate(${angle})`}
+        strokeLinecap="square"
+      >
         {[-17, 17].map((y) => (
           <g key={y}>
             <path d={`M0,${y}H${length}`} stroke="#956333" strokeWidth="8" />
-            <path d={`M0,${y - 1.5}H${length}`} stroke="#c9934b" strokeWidth="4" />
+            <path
+              d={`M0,${y - 1.5}H${length}`}
+              stroke="#c9934b"
+              strokeWidth="4"
+            />
           </g>
         ))}
         {Array.from({ length: count }, (_, i) => {
@@ -45,14 +71,30 @@ function Ladder({ from, to, filter }: { from: number; to: number; filter: string
     </g>
   );
 }
-function Snake({ from, to, id, filter }: { from: number; to: number; id: string; filter: string }) {
+
+function Snake({
+  from,
+  to,
+  id,
+  filter,
+}: {
+  from: number;
+  to: number;
+  id: string;
+  filter: string;
+}) {
   const art = SNAKE_ART[from],
     head = snakePoint(from, 0),
     ribbon = snakeRibbon(from);
   const clip = `${id}-snake-${from}`;
   const spots = Math.max(6, art.curves.length * 4);
   return (
-    <g className="map-snake" data-from={from} data-to={to} filter={`url(#${filter})`}>
+    <g
+      className="map-snake"
+      data-from={from}
+      data-to={to}
+      filter={`url(#${filter})`}
+    >
       <title>
         Rắn: ô {from} xuống ô {to}
       </title>
@@ -73,9 +115,13 @@ function Snake({ from, to, id, filter }: { from: number; to: number; id: string;
           const t = 0.035 + (i / spots) * 0.89,
             at = snakePoint(from, t),
             next = snakePoint(from, Math.min(1, t + 0.005));
-          const angle = (Math.atan2(next.y - at.y, next.x - at.x) * 180) / Math.PI;
+          const angle =
+            (Math.atan2(next.y - at.y, next.x - at.x) * 180) / Math.PI;
           return (
-            <g key={i} transform={`translate(${at.x},${at.y}) rotate(${angle})`}>
+            <g
+              key={i}
+              transform={`translate(${at.x},${at.y}) rotate(${angle})`}
+            >
               {art.pattern === "bands" ? (
                 <>
                   <path d="M0,-12V12" stroke="#263b2b" strokeWidth="8" />
@@ -96,7 +142,12 @@ function Snake({ from, to, id, filter }: { from: number; to: number; id: string;
           );
         })}
       </g>
-      <path d={snakePath(from)} fill="none" stroke="none" data-connection={from} />
+      <path
+        d={snakePath(from)}
+        fill="none"
+        stroke="none"
+        data-connection={from}
+      />
       <g transform={`translate(${head.x},${head.y})`}>
         <path
           d="M0,-19v-7m0 0-4-4m4 4 4-4"
@@ -149,6 +200,7 @@ function Snake({ from, to, id, filter }: { from: number; to: number; id: string;
     </g>
   );
 }
+
 export function Board({
   teams,
   active,
@@ -158,7 +210,7 @@ export function Board({
   teams: Team[];
   active: number;
   preview?: boolean;
-  motion?: { team: number; x: number; y: number } | null;
+  motion?: MotionState | null;
 }) {
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, ""),
     filter = `${id}-art-shadow`;
@@ -224,7 +276,9 @@ export function Board({
                 style={
                   {
                     "--number-outline":
-                      n === 30 || [8, 12, 17, 21, 23, 24, 28].includes(n) ? "#627c33" : "#314c68",
+                      n === 30 || [8, 12, 17, 21, 23, 24, 28].includes(n)
+                        ? "#627c33"
+                        : "#314c68",
                   } as CSSProperties
                 }
               >
@@ -270,7 +324,12 @@ export function Board({
           })}
         </g>
         <g className="map-icons">
-          <g transform="translate(91,492)" stroke="#fffceb" strokeWidth="2" fill="none">
+          <g
+            transform="translate(91,492)"
+            stroke="#fffceb"
+            strokeWidth="2"
+            fill="none"
+          >
             <path d="M0 0v27M0 0h19l-5 7 5 7H0" />
           </g>
           <rect
@@ -284,7 +343,12 @@ export function Board({
             strokeWidth="2"
             strokeDasharray="5 4"
           />
-          <g transform="translate(690,21)" fill="#eeb83e" stroke="#876623" strokeWidth="1.8">
+          <g
+            transform="translate(690,21)"
+            fill="#eeb83e"
+            stroke="#876623"
+            strokeWidth="1.8"
+          >
             <path d="M-10-10h20V0a10 10 0 0 1-20 0Zm0 2h-7v5q0 7 9 7m18-12h7v5q0 7-9 7M0 10v12m-7 0H7" />
           </g>
         </g>
@@ -292,7 +356,9 @@ export function Board({
           {teams.map((team) => {
             const at = preview ? 1 : team.position,
               p = motion?.team === team.id ? motion : cellPoint(at);
-            const together = teams.filter((t) => (preview ? 1 : t.position) === at),
+            const together = teams.filter(
+                (t) => (preview ? 1 : t.position) === at,
+              ),
               index = together.findIndex((t) => t.id === team.id);
             const placement = pieceLayout(at, together.length)[index];
             return (
@@ -320,7 +386,10 @@ export function Board({
                     className="pawn-glow"
                   />
                 )}
-                <foreignObject width={placement.width} height={placement.height}>
+                <foreignObject
+                  width={placement.width}
+                  height={placement.height}
+                >
                   <Pawn color={COLORS[team.id - 1]} id={team.id} />
                 </foreignObject>
               </g>

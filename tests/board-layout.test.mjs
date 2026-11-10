@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { BOARD_LABELS, NUMBER_ANCHORS } from "../src/board-art.ts";
+import { BOARD_LABELS, NUMBER_ANCHORS } from "../src/shared/constants/board-art.ts";
 import {
   labelLayout,
   numberBounds,
   numberLayout,
   pieceLayout,
   rectGap,
-} from "../src/board-layout.ts";
+} from "../src/features/game/utils/board-layout.ts";
 
 test("all 30 numbers have independent in-cell positions and readable sizes", () => {
   assert.equal(Object.keys(NUMBER_ANCHORS).length, 30);
