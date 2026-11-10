@@ -248,25 +248,25 @@
   border-radius: 15px;
   background: #fffef8;
   box-shadow:
-    0 5px 0 #dfdfce,
-    0 13px 25px #3b482312;
-  transform: rotate(-0.35deg);
+    0 3px 0 #e3decd,
+    0 9px 22px #3b482310;
+  transform: none;
 }
 .board {
   display: block;
   width: 100%;
   aspect-ratio: 6/5;
-  border: 2px solid #26362b;
+  border: 1px solid #fff9e7;
   border-radius: 3px;
   overflow: hidden;
 }
 .cell-number {
-  font-family: "Baloo 2", sans-serif;
+  font-family: "Nunito", sans-serif;
   font-weight: 800;
   paint-order: stroke;
-  stroke: #26362b88;
-  stroke-width: 1.5px;
-  letter-spacing: -2px;
+  stroke: var(--number-outline, #314c68);
+  stroke-width: 2.2px;
+  letter-spacing: -1.7px;
 }
 .cell-label {
   font-family: "Nunito", sans-serif;
@@ -308,12 +308,12 @@
   font-weight: 900;
 }
 .legend-ladder {
-  background: #f3df8e;
-  color: #9a7724;
+  background: #ead8b8;
+  color: #986d36;
 }
 .legend-snake {
-  background: #ecd1e5;
-  color: #a55888;
+  background: #dfebbd;
+  color: #587b38;
 }
 .legend-event {
   background: #d7e4f6;
@@ -503,6 +503,32 @@
   text-align: center;
   margin-top: 16px;
   color: #9a9e8d;
+}
+.race-rule {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 23px 0;
+  padding: 15px;
+  border: 1px solid #dce5cf;
+  border-radius: 11px;
+  background: #f1f5e9;
+}
+.race-rule > svg {
+  flex-shrink: 0;
+  color: #567746;
+  margin-top: 2px;
+}
+.race-rule b {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+}
+.race-rule p {
+  font-size: 11px;
+  line-height: 1.75;
+  color: #68755e;
+  margin-top: 5px;
 }
 .rules-accordion {
   padding: 0 19px;
@@ -952,8 +978,8 @@
   color: #a27d18;
 }
 .snake-symbol {
-  background: #f2d4e7;
-  color: #ab5486;
+  background: #dfebbd;
+  color: #587b38;
 }
 .event-symbol {
   background: #dce7fa;
@@ -981,8 +1007,8 @@
   color: #70521a;
 }
 .type-snake {
-  background: #ecc1e0;
-  color: #7a3f67;
+  background: #dfebbd;
+  color: #45632e;
 }
 .type-event {
   background: #cee0f9;
@@ -1568,9 +1594,6 @@
     display: none;
   }
   .round-pill + .header-button span {
-    display: none;
-  }
-  .round-pill ~ .rules-button span {
     display: none;
   }
   .turn-panel {

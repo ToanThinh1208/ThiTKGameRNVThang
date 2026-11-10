@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { Board, Dice, Icon, Pawn } from "./components";
+import { Dice, Icon, Pawn } from "./components";
+import { Board } from "./Board";
+import { connectionPoint } from "./board-art";
 import {
   COLORS,
   LADDERS,
   SNAKES,
   QUESTIONS,
   advanceTurn,
-  cellPoint,
+  getRaceWinner,
+  landingPosition,
   makeTeams,
   rankTeams,
   resolveAnswer,
@@ -56,9 +59,9 @@ function Rules() {
         thành hành trình.
       </p>
       <p>
-        Điểm có thể âm. Trận kết thúc khi hết số vòng hoặc tất cả nhóm về đích. Nhóm{" "}
-        <b>cao điểm nhất</b> chiến thắng; bằng điểm thì nhóm ở ô xa hơn xếp trên. Nhóm hoàn thành bỏ
-        qua các lượt tiếp theo.
+        Không giới hạn số vòng. <b>Nhóm đầu tiên đến hoặc vượt ô 30 chiến thắng</b> và cuộc đua kết
+        thúc ngay, không chờ các nhóm còn lại chơi hết vòng. Điểm có thể âm và được giữ để tổng kết
+        kiến thức; các nhóm chưa về đích xếp theo điểm, rồi đến vị trí ô.
       </p>
     </div>
   );
@@ -75,7 +78,7 @@ function Ranking({ teams, active }: { teams: Team[]; active: number }) {
             <b>Nhóm {team.id}</b>
             <small>
               {team.finished ? (
-                <span className="finished-badge">Hoàn thành</span>
+                <span className="finished-badge">Về đích đầu tiên</span>
               ) : (
                 `Đang ở ô ${team.position}`
               )}
@@ -94,7 +97,6 @@ function Ranking({ teams, active }: { teams: Team[]; active: number }) {
 export default function App() {
   const [screen, setScreen] = useState<"setup" | "play" | "end">("setup");
   const [count, setCount] = useState(4);
-  const [rounds, setRounds] = useState(10);
   const [teams, setTeams] = useState<Team[]>(makeTeams(4));
   const [turn, setTurn] = useState(0);
   const [round, setRound] = useState(1);
@@ -103,7 +105,6 @@ export default function App() {
   const [pending, setPending] = useState<Pending | null>(null);
   const [logs, setLogs] = useState<Log[]>([]);
   const [tab, setTab] = useState("ranking");
-  const [rules, setRules] = useState(false);
   const [reset, setReset] = useState(false);
   const [toast, setToast] = useState<{ text: string; points: number; positive: boolean } | null>(
     null,
@@ -113,7 +114,7 @@ export default function App() {
   const modalRef = useRef<HTMLDivElement>(null);
   const lock = useRef(false);
   const active = teams[turn];
-  const modalOpen = rules || reset || !!pending;
+  const modalOpen = reset || !!pending;
 
   useEffect(() => {
     if (!modalOpen) return;
@@ -122,7 +123,6 @@ export default function App() {
     el?.querySelector<HTMLElement>("button")?.focus();
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !pending) {
-        setRules(false);
         setReset(false);
       }
       if (e.key === "Tab" && el) {
@@ -168,10 +168,11 @@ export default function App() {
     setLogs((prev) => [{ id: Date.now() + Math.random(), team, text, points, correct }, ...prev]);
   }
   function nextTurn(updated: Team[]) {
-    const next = advanceTurn(updated, turn, round, rounds);
+    const next = advanceTurn(updated, turn, round);
     if (next.ended) {
       clearTimeout(timer.current);
       setToast(null);
+      setPending(null);
       setScreen("end");
       return;
     }
@@ -184,7 +185,7 @@ export default function App() {
     timer.current = setTimeout(() => setToast(null), 2800);
   }
   async function roll() {
-    if (lock.current || busy || pending) return;
+    if (screen !== "play" || getRaceWinner(teams) || lock.current || busy || pending) return;
     lock.current = true;
     setBusy(true);
     setToast(null);
@@ -194,7 +195,7 @@ export default function App() {
       await wait(85);
     }
     setDie(value);
-    const destination = Math.min(30, active.position + value);
+    const destination = landingPosition(active.position, value);
     addLog(active.id, `Tung được ${value} → đến ô ${destination}`);
     for (let step = active.position + 1; step <= destination; step++) {
       setTeams((prev) => prev.map((t) => (t.id === active.id ? { ...t, position: step } : t)));
@@ -207,8 +208,7 @@ export default function App() {
         t.id === active.id ? { ...t, score: t.score + 250, finished: true } : t,
       );
       setTeams(result);
-      addLog(active.id, "Đã về đích! Hoàn thành hành trình.", 250);
-      showEffect(`Nhóm ${active.id} đã về đích!`, 250);
+      addLog(active.id, "Về đích đầu tiên! Cuộc đua kết thúc.", 250);
       nextTurn(result);
     } else if (QUESTIONS[destination]) {
       setPending({ cell: destination, team: active.id, selected: null });
@@ -227,7 +227,7 @@ export default function App() {
     setPending({ ...pending, selected: index });
   }
   async function continueAnswer() {
-    if (!pending || pending.selected === null || lock.current) return;
+    if (screen !== "play" || !pending || pending.selected === null || lock.current) return;
     lock.current = true;
     setBusy(true);
     const correct = pending.selected === QUESTIONS[pending.cell].correct;
@@ -246,19 +246,9 @@ export default function App() {
       correct,
     );
     if (result.destination !== pending.cell) {
-      const a = cellPoint(pending.cell),
-        b = cellPoint(result.destination);
-      const snake = !!SNAKES[pending.cell];
       for (let frame = 0; frame <= 40; frame++) {
-        const t = frame / 40,
-          u = 1 - t;
-        const x = snake
-          ? u ** 3 * a.x + 3 * u ** 2 * t * (a.x - 70) + 3 * u * t ** 2 * (b.x + 90) + t ** 3 * b.x
-          : a.x + (b.x - a.x) * t;
-        const y = snake
-          ? u ** 3 * a.y + 3 * u ** 2 * t * (a.y + 45) + 3 * u * t ** 2 * (b.y - 65) + t ** 3 * b.y
-          : a.y + (b.y - a.y) * t;
-        setMotion({ team: pending.team, x, y });
+        const point = connectionPoint(pending.cell, frame / 40);
+        setMotion({ team: pending.team, ...point });
         await wait(28);
       }
     }
@@ -281,7 +271,8 @@ export default function App() {
     pending && pending.selected !== null
       ? resolveAnswer(pending.cell, pending.selected === question?.correct)
       : null;
-  const winner = rankTeams(teams)[0];
+  const rankedTeams = rankTeams(teams);
+  const winner = getRaceWinner(teams) ?? rankedTeams[0];
 
   return (
     <div className="app-shell">
@@ -312,11 +303,7 @@ export default function App() {
         <div className="header-actions">
           {screen === "play" && (
             <span className="round-pill">
-              <span className="live-dot" /> Vòng{" "}
-              <b>
-                {round}
-                <span>/{rounds}</span>
-              </b>
+              <span className="live-dot" /> Vòng <b>{round}</b>
             </span>
           )}
           {screen !== "setup" && (
@@ -325,10 +312,6 @@ export default function App() {
               <span>Chơi lại</span>
             </button>
           )}
-          <button className="header-button rules-button" onClick={() => setRules(true)}>
-            <Icon name="book" />
-            <span>Luật chơi</span>
-          </button>
           <span className="education-tag">GÓC HỌC LỊCH SỬ</span>
         </div>
       </header>
@@ -390,7 +373,7 @@ export default function App() {
                 <div className="board-note">
                   <Icon name="star" size={17} />
                   <span>
-                    Không chỉ về đích trước — <b>kiến thức mới là chìa khóa chiến thắng!</b>
+                    <b>Về đích đầu tiên là chiến thắng!</b> Cùng học hỏi trên mỗi bước đi.
                   </span>
                 </div>
               </section>
@@ -431,31 +414,21 @@ export default function App() {
                           </div>
                         ))}
                       </div>
-                      <div className="setting-label">
-                        <Icon name="refresh" size={18} />
-                        <b>Số vòng mỗi nhóm</b>
-                      </div>
-                      <div className="segment rounds">
-                        {[6, 10, 14, 18].map((n) => (
-                          <button
-                            key={n}
-                            aria-pressed={rounds === n}
-                            className={rounds === n ? "selected" : ""}
-                            onClick={() => setRounds(n)}
-                          >
-                            {n}
-                            <small>vòng</small>
-                          </button>
-                        ))}
-                      </div>
-                      <div className="duration">
-                        <Icon name="clock" size={16} /> Khoảng {Math.round(count * rounds * 0.45)}–
-                        {Math.round(count * rounds * 0.75)} phút <span>·</span> Chung một thiết bị
+                      <div className="race-rule">
+                        <Icon name="flag" size={23} />
+                        <div>
+                          <b>Về đích trước là thắng</b>
+                          <p>
+                            Không giới hạn số vòng. Cuộc đua kết thúc ngay khi một nhóm tới ô 30.
+                          </p>
+                        </div>
                       </div>
                       <button className="primary-button start-button" onClick={start}>
                         BẮT ĐẦU TRÒ CHƠI <Icon name="arrow" size={21} />
                       </button>
-                      <p className="setup-footnote">Mỗi lượt chơi, thêm một điều hay.</p>
+                      <p className="setup-footnote">
+                        Chung một thiết bị · Các nhóm chơi luân phiên
+                      </p>
                     </section>
                     <details className="panel rules-accordion">
                       <summary>
@@ -538,7 +511,7 @@ export default function App() {
                         <>
                           <Ranking teams={teams} active={active.id} />
                           <div className="rank-footnote">
-                            Xếp hạng theo điểm, sau đó đến vị trí ô.
+                            Nhóm về đích xếp nhất; các nhóm còn lại xếp theo điểm và vị trí ô.
                           </div>
                         </>
                       ) : (
@@ -577,8 +550,8 @@ export default function App() {
                         <Icon name="star" size={22} />
                       </span>
                       <div>
-                        <b>Điểm số có thể thay đổi!</b>
-                        <p>Trả lời đúng để leo thang, né rắn và vươn lên dẫn đầu.</p>
+                        <b>Ai sẽ về đích đầu tiên?</b>
+                        <p>Trả lời đúng để leo thang, né rắn và tiến nhanh tới ô 30.</p>
                       </div>
                     </div>
                   </>
@@ -608,13 +581,14 @@ export default function App() {
             </div>
             <h1>Nhóm {winner.id} chiến thắng!</h1>
             <p>
-              Chúc mừng những nhà khám phá lịch sử. Kiến thức là phần thưởng của tất cả chúng ta!
+              Nhóm {winner.id} đã về đích đầu tiên! Cuộc đua kết thúc ngay tại ô 30. Điểm số ghi
+              nhận kiến thức của tất cả các nhóm.
             </p>
             <div className="podium">
               {[1, 0, 2]
-                .filter((i) => rankTeams(teams)[i])
+                .filter((i) => rankedTeams[i])
                 .map((i) => {
-                  const team = rankTeams(teams)[i];
+                  const team = rankedTeams[i];
                   return (
                     <div key={team.id} className={`podium-place place-${i + 1}`}>
                       <Pawn color={COLORS[team.id - 1]} id={team.id} />
@@ -758,7 +732,7 @@ export default function App() {
                   )}
                 </div>
               </>
-            ) : reset ? (
+            ) : (
               <div className="standard-modal">
                 <div className="modal-heading">
                   <h2 id="modal-title">Bắt đầu hành trình mới?</h2>
@@ -782,23 +756,6 @@ export default function App() {
                   }}
                 >
                   Về trang thiết lập
-                </button>
-              </div>
-            ) : (
-              <div className="standard-modal">
-                <div className="modal-heading">
-                  <h2 id="modal-title">Luật chơi Rắn & Thang</h2>
-                  <button
-                    className="icon-button"
-                    onClick={() => setRules(false)}
-                    aria-label="Đóng luật chơi"
-                  >
-                    <Icon name="close" />
-                  </button>
-                </div>
-                <Rules />
-                <button className="primary-button" onClick={() => setRules(false)}>
-                  Đã hiểu, cùng chơi nào! <Icon name="check" />
                 </button>
               </div>
             )}

@@ -1,7 +1,7 @@
 export const COLORS = ["#E64B45", "#62A746", "#3869D6", "#E9B82F", "#EB883D", "#9364C5"];
-export const LADDERS: Record<number, number> = { 3: 8, 5: 11, 10: 16, 14: 20, 21: 27 };
-export const SNAKES: Record<number, number> = { 6: 2, 13: 9, 19: 15, 24: 18, 28: 23 };
-export const EVENTS = [2, 4, 7, 9, 11, 12, 15, 17, 18, 20, 22, 23, 25, 26, 29];
+export const LADDERS: Record<number, number> = { 6: 18, 11: 14, 15: 22, 21: 28, 23: 26 };
+export const SNAKES: Record<number, number> = { 16: 3, 20: 5, 25: 12, 27: 22, 29: 19 };
+export const EVENTS = [2, 3, 4, 5, 7, 9, 10, 12, 13, 14, 17, 18, 19, 22, 24, 26, 28];
 export type Team = { id: number; position: number; score: number; finished: boolean };
 export type Question = {
   title: string;
@@ -148,6 +148,14 @@ export const QUESTIONS: Record<number, Question> = {
     2,
     "Luật Doanh nghiệp năm 1999 cải thiện môi trường kinh doanh và tạo điều kiện phát triển khu vực doanh nghiệp.",
   ),
+  16: q(
+    "Hiệp định thương mại",
+    "2000",
+    "Việt Nam và Hoa Kỳ ký Hiệp định Thương mại song phương (BTA) vào năm nào?",
+    ["1995", "2000", "2007"],
+    1,
+    "Hiệp định Thương mại Việt Nam – Hoa Kỳ được ký ngày 13/7/2000 và có hiệu lực năm 2001, góp phần mở rộng hợp tác thương mại.",
+  ),
   17: q(
     "Hội nhập thương mại",
     "2001",
@@ -236,6 +244,18 @@ export const QUESTIONS: Record<number, Question> = {
     1,
     "Hiến pháp năm 2013 khẳng định nền kinh tế thị trường định hướng xã hội chủ nghĩa với nhiều hình thức sở hữu, nhiều thành phần kinh tế.",
   ),
+  27: q(
+    "Cộng đồng ASEAN",
+    "2015",
+    "Sự hình thành Cộng đồng ASEAN cuối năm 2015 có ý nghĩa gì đối với Việt Nam?",
+    [
+      "Chấm dứt hợp tác khu vực",
+      "Loại bỏ mọi thách thức kinh tế",
+      "Tăng cường liên kết và hợp tác trong khu vực",
+    ],
+    2,
+    "Cộng đồng ASEAN chính thức hình thành ngày 31/12/2015, mở ra giai đoạn liên kết sâu rộng hơn trên ba trụ cột: chính trị – an ninh, kinh tế và văn hóa – xã hội.",
+  ),
   28: q(
     "Chỉnh đốn Đảng",
     "2016",
@@ -259,21 +279,21 @@ export const QUESTIONS: Record<number, Question> = {
 };
 export const makeTeams = (count: number): Team[] =>
   Array.from({ length: count }, (_, i) => ({ id: i + 1, position: 1, score: 0, finished: false }));
+const hasFinished = (team: Team) => team.finished || team.position >= 30;
+export const getRaceWinner = (teams: Team[]) => teams.find(hasFinished);
+export const landingPosition = (position: number, die: number) => Math.min(30, position + die);
 export const rankTeams = (teams: Team[]) =>
-  [...teams].sort((a, b) => b.score - a.score || b.position - a.position || a.id - b.id);
-export function advanceTurn(teams: Team[], turn: number, round: number, limit: number) {
-  if (teams.every((team) => team.finished)) return { turn, round, ended: true };
-  let next = turn,
-    nextRound = round;
-  do {
-    next++;
-    if (next >= teams.length) {
-      next = 0;
-      nextRound++;
-    }
-    if (nextRound > limit) return { turn: next, round: nextRound, ended: true };
-  } while (teams[next].finished);
-  return { turn: next, round: nextRound, ended: false };
+  [...teams].sort(
+    (a, b) =>
+      Number(hasFinished(b)) - Number(hasFinished(a)) ||
+      b.score - a.score ||
+      b.position - a.position ||
+      a.id - b.id,
+  );
+export function advanceTurn(teams: Team[], turn: number, round: number) {
+  if (getRaceWinner(teams)) return { turn, round, ended: true };
+  const next = (turn + 1) % teams.length;
+  return { turn: next, round: round + (next === 0 ? 1 : 0), ended: false };
 }
 export const cellPoint = (n: number) => {
   const row = Math.floor((n - 1) / 6);

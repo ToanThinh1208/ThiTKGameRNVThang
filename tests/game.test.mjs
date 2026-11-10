@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   advanceTurn,
+  getRaceWinner,
+  landingPosition,
   cellPoint,
   EVENTS,
   LADDERS,
@@ -23,9 +25,10 @@ test("board has 30 unique square positions in the prescribed zigzag order", () =
     30,
   );
 });
-test("all 25 question cells have three answers, one correct index and explanations", () => {
+test("all 27 question cells have three answers, one correct index and explanations", () => {
   const cells = [...Object.keys(LADDERS), ...Object.keys(SNAKES), ...EVENTS];
-  assert.equal(cells.length, 25);
+  assert.equal(cells.length, 27);
+  assert.equal(new Set(cells.map(Number)).size, 27);
   for (const cell of cells) {
     const question = QUESTIONS[cell];
     assert.ok(question, `Missing question for cell ${cell}`);
@@ -73,20 +76,37 @@ test("ranking uses score first then position, accepts negative scores and does n
     [1, 2, 3, 4],
   );
 });
-test("turns advance in order, increment rounds and skip finished teams", () => {
+test("turns advance in order with an unlimited round counter", () => {
   const teams = makeTeams(4);
-  assert.deepEqual(advanceTurn(teams, 0, 1, 10), { turn: 1, round: 1, ended: false });
-  assert.deepEqual(advanceTurn(teams, 3, 1, 10), { turn: 0, round: 2, ended: false });
-  teams[0].finished = true;
-  teams[1].finished = true;
-  assert.deepEqual(advanceTurn(teams, 3, 1, 10), { turn: 2, round: 2, ended: false });
+  assert.deepEqual(advanceTurn(teams, 0, 1), { turn: 1, round: 1, ended: false });
+  assert.deepEqual(advanceTurn(teams, 3, 1), { turn: 0, round: 2, ended: false });
+  assert.deepEqual(advanceTurn(teams, 3, 10000), { turn: 0, round: 10001, ended: false });
+  assert.equal(getRaceWinner(teams), undefined);
 });
-test("games end after the configured rounds or all teams finish", () => {
-  const teams = makeTeams(2);
-  assert.equal(advanceTurn(teams, 1, 6, 6).ended, true);
-  assert.equal(advanceTurn(teams, 0, 6, 6).ended, false);
-  teams.forEach((t) => {
-    t.finished = true;
-  });
-  assert.equal(advanceTurn(teams, 0, 1, 18).ended, true);
+test("the first finish ends the race immediately, even in the middle of a round", () => {
+  const teams = makeTeams(6);
+  teams[1].position = 30;
+  teams[1].finished = true;
+  assert.deepEqual(advanceTurn(teams, 1, 3), { turn: 1, round: 3, ended: true });
+  assert.equal(getRaceWinner(teams).id, 2);
+  assert.equal(teams.filter((t) => t.finished).length, 1);
+  teams[1].finished = false;
+  assert.equal(advanceTurn(teams, 1, 3).ended, true);
+});
+test("the finisher wins even when another group has a higher score", () => {
+  const teams = makeTeams(3);
+  teams[0] = { ...teams[0], position: 30, finished: true, score: 170 };
+  teams[1] = { ...teams[1], position: 29, score: 360 };
+  teams[2] = { ...teams[2], position: 28, score: 400 };
+  assert.equal(getRaceWinner(teams).id, 1);
+  assert.deepEqual(
+    rankTeams(teams).map((t) => t.id),
+    [1, 3, 2],
+  );
+});
+test("exact and overshooting dice rolls both land on the finish", () => {
+  assert.equal(landingPosition(28, 2), 30);
+  assert.equal(landingPosition(28, 6), 30);
+  assert.equal(landingPosition(29, 1), 30);
+  assert.equal(landingPosition(24, 5), 29);
 });
