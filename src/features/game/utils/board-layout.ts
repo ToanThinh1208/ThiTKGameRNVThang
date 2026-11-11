@@ -6,7 +6,7 @@ import type { Rect } from "../types.ts";
 
 export function numberLayout(cell: number) {
   const anchor = NUMBER_ANCHORS[cell] ?? { x: 12, y: 43 };
-  return { ...anchor, fontSize: anchor.fontSize ?? (cell === 30 ? 43 : 44) };
+  return { ...anchor, fontSize: anchor.fontSize ?? 44 };
 }
 
 export function labelLayout(cell: number) {
