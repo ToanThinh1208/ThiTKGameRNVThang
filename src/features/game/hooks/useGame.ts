@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import type { ToastData } from "@/shared/components";
 import { wait } from "@/lib/utils/async";
-import { QUESTIONS } from "../../../shared/constants/game-data";
+import { QUESTION_BANK, QUESTIONS } from "../../../shared/constants/game-data";
 import type {
   Log,
   MotionState,
   PendingQuestion,
+  QuestionDeckState,
   ScreenState,
   Team,
 } from "../types";
 import { connectionPoint } from "../utils/board-geometry";
 import {
   advanceTurn,
+  createQuestionDecks,
+  drawCellQuestion,
   getRaceWinner,
   landingPosition,
   makeTeams,
@@ -36,6 +39,7 @@ export function useGame() {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const modalRef = useRef<HTMLDivElement>(null);
   const lock = useRef(false);
+  const questionDecks = useRef<QuestionDeckState>(createQuestionDecks());
 
   const active = teams[turn];
   const modalOpen = reset || !!pending;
@@ -78,6 +82,7 @@ export function useGame() {
 
   function start() {
     clearTimeout(timer.current);
+    questionDecks.current = createQuestionDecks();
     setTeams(makeTeams(count));
     setTurn(0);
     setRound(1);
@@ -160,8 +165,19 @@ export function useGame() {
       setTeams(result);
       addLog(active.id, "Về đích đầu tiên! Cuộc đua kết thúc.", 250);
       nextTurn(result);
-    } else if (QUESTIONS[destination]) {
-      setPending({ cell: destination, team: active.id, selected: null });
+    } else if (QUESTION_BANK[destination]?.length) {
+      const { question, questionIndex, nextDecks } = drawCellQuestion(
+        questionDecks.current,
+        destination,
+      );
+      questionDecks.current = nextDecks;
+      setPending({
+        cell: destination,
+        team: active.id,
+        selected: null,
+        question,
+        questionIndex,
+      });
     } else {
       const result = updated.map((t) =>
         t.id === active.id ? { ...t, score: t.score + 15 } : t,
@@ -190,7 +206,8 @@ export function useGame() {
       return;
     lock.current = true;
     setBusy(true);
-    const correct = pending.selected === QUESTIONS[pending.cell].correct;
+    const activeQuestion = pending.question ?? QUESTIONS[pending.cell];
+    const correct = pending.selected === activeQuestion.correct;
     const result = resolveAnswer(pending.cell, correct);
     const updated = teams.map((t) =>
       t.id === pending.team

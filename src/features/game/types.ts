@@ -28,7 +28,17 @@ export type PendingQuestion = {
   cell: number;
   team: number;
   selected: number | null;
+  question?: Question;
+  questionIndex?: number;
 };
+
+export type QuestionDeckState = Record<
+  number,
+  {
+    order: number[];
+    cursor: number;
+  }
+>;
 
 export type Point = {
   x: number;

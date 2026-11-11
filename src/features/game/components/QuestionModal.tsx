@@ -18,7 +18,7 @@ export function QuestionModal({
   onSelectAnswer,
   onContinue,
 }: QuestionModalProps) {
-  const question = QUESTIONS[pending.cell];
+  const question = pending.question ?? QUESTIONS[pending.cell];
   if (!question) return null;
 
   const questionType = LADDERS[pending.cell]

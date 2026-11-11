@@ -1,9 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { EVENTS, LADDERS, QUESTIONS, SNAKES } from "../src/shared/constants/game-data.ts";
+import {
+  EVENTS,
+  LADDERS,
+  QUESTION_BANK,
+  QUESTIONS,
+  SNAKES,
+} from "../src/shared/constants/game-data.ts";
 import {
   advanceTurn,
   cellPoint,
+  createQuestionDecks,
+  drawCellQuestion,
   getRaceWinner,
   landingPosition,
   makeTeams,
@@ -32,6 +40,35 @@ test("all 27 question cells have three answers, one correct index and explanatio
     assert.equal(question.answers.length, 3);
     assert.ok(question.correct >= 0 && question.correct < 3);
     assert.ok(question.explanation.length > 20);
+
+    const bank = QUESTION_BANK[cell];
+    assert.ok(Array.isArray(bank), `Missing question bank for cell ${cell}`);
+    assert.equal(bank.length, 4, `Cell ${cell} should have 4 questions`);
+    assert.equal(new Set(bank.map((q) => q.question)).size, 4);
+    for (const q of bank) {
+      assert.equal(q.answers.length, 3);
+      assert.ok(q.correct >= 0 && q.correct < 3);
+      assert.ok(q.explanation.length > 20);
+    }
+  }
+});
+test("each cell draws 4 questions in random order without repeating previous questions", () => {
+  let decks = createQuestionDecks();
+  for (const cell of Object.keys(QUESTION_BANK).map(Number)) {
+    const seen = [];
+    for (let visit = 0; visit < 4; visit++) {
+      const drawn = drawCellQuestion(decks, cell);
+      decks = drawn.nextDecks;
+      assert.ok(
+        !seen.includes(drawn.questionIndex),
+        `Cell ${cell} repeated question index ${drawn.questionIndex} on visit ${visit + 1}`,
+      );
+      seen.push(drawn.questionIndex);
+    }
+    assert.deepEqual([...seen].sort(), [0, 1, 2, 3]);
+
+    const fifthVisit = drawCellQuestion(decks, cell);
+    assert.notEqual(fifthVisit.questionIndex, seen[3]);
   }
 });
 test("correct ladder answers award 100 and move up; incorrect answers deduct 20", () => {

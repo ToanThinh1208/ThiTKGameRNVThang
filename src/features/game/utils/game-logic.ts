@@ -1,5 +1,10 @@
-import { COLORS, LADDERS, SNAKES } from "../../../shared/constants/game-data.ts";
-import type { Team } from "../types.ts";
+import {
+  COLORS,
+  LADDERS,
+  QUESTION_BANK,
+  SNAKES,
+} from "../../../shared/constants/game-data.ts";
+import type { Question, QuestionDeckState, Team } from "../types.ts";
 
 export const FIRST_TEAM_ID = 2;
 
@@ -62,5 +67,67 @@ export function resolveAnswer(position: number, correct: boolean) {
       : snake
         ? "Bị rắn cắn!"
         : "Thêm một bài học!",
+  };
+}
+
+export function shuffleIndices(
+  length: number,
+  rng: () => number = Math.random,
+): number[] {
+  const indices = Array.from({ length }, (_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return indices;
+}
+
+export function createQuestionDecks(
+  rng: () => number = Math.random,
+): QuestionDeckState {
+  return Object.fromEntries(
+    Object.entries(QUESTION_BANK).map(([cell, list]) => [
+      Number(cell),
+      { order: shuffleIndices(list.length, rng), cursor: 0 },
+    ]),
+  );
+}
+
+export function drawCellQuestion(
+  decks: QuestionDeckState,
+  cell: number,
+  rng: () => number = Math.random,
+): { question: Question; questionIndex: number; nextDecks: QuestionDeckState } {
+  const pool = QUESTION_BANK[cell];
+  const current = decks[cell] ?? {
+    order: shuffleIndices(pool.length, rng),
+    cursor: 0,
+  };
+
+  if (current.cursor < current.order.length) {
+    const questionIndex = current.order[current.cursor];
+    return {
+      question: pool[questionIndex],
+      questionIndex,
+      nextDecks: {
+        ...decks,
+        [cell]: { order: current.order, cursor: current.cursor + 1 },
+      },
+    };
+  }
+
+  const nextOrder = shuffleIndices(pool.length, rng);
+  const lastIndex = current.order[current.order.length - 1];
+  if (pool.length > 1 && nextOrder[0] === lastIndex) {
+    [nextOrder[0], nextOrder[1]] = [nextOrder[1], nextOrder[0]];
+  }
+  const questionIndex = nextOrder[0];
+  return {
+    question: pool[questionIndex],
+    questionIndex,
+    nextDecks: {
+      ...decks,
+      [cell]: { order: nextOrder, cursor: 1 },
+    },
   };
 }
