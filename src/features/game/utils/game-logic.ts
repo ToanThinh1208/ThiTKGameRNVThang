@@ -1,9 +1,14 @@
-import { LADDERS, SNAKES } from "../../../shared/constants/game-data.ts";
+import { COLORS, LADDERS, SNAKES } from "../../../shared/constants/game-data.ts";
 import type { Team } from "../types.ts";
+
+export const FIRST_TEAM_ID = 2;
+
+export const teamColor = (teamId: number) =>
+  COLORS[teamId - FIRST_TEAM_ID] ?? COLORS[0];
 
 export const makeTeams = (count: number): Team[] =>
   Array.from({ length: count }, (_, i) => ({
-    id: i + 1,
+    id: i + FIRST_TEAM_ID,
     position: 1,
     score: 0,
     finished: false,

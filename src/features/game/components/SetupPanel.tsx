@@ -1,5 +1,5 @@
 import { Icon, Pawn } from "@/shared/components";
-import { COLORS } from "../../../shared/constants/game-data";
+import { makeTeams, teamColor } from "../utils/game-logic";
 import { Rules } from "./Rules";
 
 type SetupPanelProps = {
@@ -40,10 +40,10 @@ export function SetupPanel({ count, onSelectCount, onStart }: SetupPanelProps) {
           ))}
         </div>
         <div className="team-preview">
-          {Array.from({ length: count }, (_, i) => (
-            <div key={i}>
-              <Pawn color={COLORS[i]} id={i + 1} />
-              <span>Nhóm {i + 1}</span>
+          {makeTeams(count).map((team) => (
+            <div key={team.id}>
+              <Pawn color={teamColor(team.id)} id={team.id} />
+              <span>Nhóm {team.id}</span>
             </div>
           ))}
         </div>

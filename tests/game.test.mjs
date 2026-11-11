@@ -66,11 +66,11 @@ test("ranking uses score first then position, accepts negative scores and does n
   teams[2].position = 20;
   assert.deepEqual(
     rankTeams(teams).map((t) => t.id),
-    [3, 2, 4, 1],
+    [4, 3, 5, 2],
   );
   assert.deepEqual(
     teams.map((t) => t.id),
-    [1, 2, 3, 4],
+    [2, 3, 4, 5],
   );
 });
 test("turns advance in order with an unlimited round counter", () => {
@@ -85,7 +85,7 @@ test("the first finish ends the race immediately, even in the middle of a round"
   teams[1].position = 30;
   teams[1].finished = true;
   assert.deepEqual(advanceTurn(teams, 1, 3), { turn: 1, round: 3, ended: true });
-  assert.equal(getRaceWinner(teams).id, 2);
+  assert.equal(getRaceWinner(teams).id, 3);
   assert.equal(teams.filter((t) => t.finished).length, 1);
   teams[1].finished = false;
   assert.equal(advanceTurn(teams, 1, 3).ended, true);
@@ -95,10 +95,10 @@ test("the finisher wins even when another group has a higher score", () => {
   teams[0] = { ...teams[0], position: 30, finished: true, score: 170 };
   teams[1] = { ...teams[1], position: 29, score: 360 };
   teams[2] = { ...teams[2], position: 28, score: 400 };
-  assert.equal(getRaceWinner(teams).id, 1);
+  assert.equal(getRaceWinner(teams).id, 2);
   assert.deepEqual(
     rankTeams(teams).map((t) => t.id),
-    [1, 3, 2],
+    [2, 4, 3],
   );
 });
 test("exact and overshooting dice rolls both land on the finish", () => {

@@ -1,7 +1,6 @@
 import { Pawn } from "@/shared/components";
-import { COLORS } from "../../../shared/constants/game-data";
 import type { Team } from "../types";
-import { rankTeams } from "../utils/game-logic";
+import { rankTeams, teamColor } from "../utils/game-logic";
 
 export function Ranking({ teams, active }: { teams: Team[]; active: number }) {
   return (
@@ -12,7 +11,7 @@ export function Ranking({ teams, active }: { teams: Team[]; active: number }) {
           className={`rank-row ${team.id === active ? "rank-active" : ""}`}
         >
           <span className={`rank-number rank-${i + 1}`}>{i + 1}</span>
-          <Pawn color={COLORS[team.id - 1]} />
+          <Pawn color={teamColor(team.id)} />
           <div className="rank-name">
             <b>Nhóm {team.id}</b>
             <small>

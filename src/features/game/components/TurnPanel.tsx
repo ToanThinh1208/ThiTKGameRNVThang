@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Dice, Icon, Pawn } from "@/shared/components";
-import { COLORS } from "../../../shared/constants/game-data";
 import type { Team } from "../types";
+import { teamColor } from "../utils/game-logic";
 
 type TurnPanelProps = {
   active: Team;
@@ -21,7 +21,7 @@ export function TurnPanel({
   return (
     <section
       className="panel turn-panel"
-      style={{ "--team-color": COLORS[active.id - 1] } as CSSProperties}
+      style={{ "--team-color": teamColor(active.id) } as CSSProperties}
     >
       <div className="turn-heading">
         <div>
@@ -30,7 +30,7 @@ export function TurnPanel({
             Lượt của <span>Nhóm {active.id}</span>
           </h2>
         </div>
-        <Pawn color={COLORS[active.id - 1]} id={active.id} />
+        <Pawn color={teamColor(active.id)} id={active.id} />
       </div>
       <div className="dice-area">
         <span className="dice-spark spark-one">+</span>

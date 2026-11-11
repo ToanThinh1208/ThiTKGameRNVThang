@@ -1,7 +1,7 @@
 import { Icon, Pawn } from "@/shared/components";
 import { COLORS } from "../../../shared/constants/game-data";
 import type { Team } from "../types";
-import { getRaceWinner, rankTeams } from "../utils/game-logic";
+import { getRaceWinner, rankTeams, teamColor } from "../utils/game-logic";
 import { Ranking } from "./Ranking";
 
 type EndScreenProps = {
@@ -46,7 +46,7 @@ export function EndScreen({ teams, onRestart, onSetup }: EndScreenProps) {
             const team = rankedTeams[i];
             return (
               <div key={team.id} className={`podium-place place-${i + 1}`}>
-                <Pawn color={COLORS[team.id - 1]} id={team.id} />
+                <Pawn color={teamColor(team.id)} id={team.id} />
                 <b>Nhóm {team.id}</b>
                 <span>{team.score} điểm</span>
                 <div className="podium-block">

@@ -7,7 +7,6 @@ import {
   SNAKE_ART,
 } from "../../../shared/constants/board-art";
 import {
-  COLORS,
   LADDERS,
   QUESTIONS,
   SNAKES,
@@ -15,7 +14,7 @@ import {
 import type { MotionState, Team } from "../types";
 import { snakePath, snakePoint, snakeRibbon } from "../utils/board-geometry";
 import { labelLayout, numberLayout, pieceLayout } from "../utils/board-layout";
-import { cellPoint } from "../utils/game-logic";
+import { cellPoint, teamColor } from "../utils/game-logic";
 
 const CELLS = Array.from({ length: 30 }, (_, i) => i + 1);
 
@@ -390,7 +389,7 @@ export function Board({
                   width={placement.width}
                   height={placement.height}
                 >
-                  <Pawn color={COLORS[team.id - 1]} id={team.id} />
+                  <Pawn color={teamColor(team.id)} id={team.id} />
                 </foreignObject>
               </g>
             );

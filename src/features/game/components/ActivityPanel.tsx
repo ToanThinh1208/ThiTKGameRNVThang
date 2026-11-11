@@ -1,6 +1,6 @@
 import { Icon } from "@/shared/components";
-import { COLORS } from "../../../shared/constants/game-data";
 import type { Log, Team } from "../types";
+import { teamColor } from "../utils/game-logic";
 import { Ranking } from "./Ranking";
 
 type ActivityPanelProps = {
@@ -56,7 +56,7 @@ export function ActivityPanel({
                 <div className="log-row" key={log.id}>
                   <span
                     className="log-dot"
-                    style={{ background: COLORS[log.team - 1] }}
+                    style={{ background: teamColor(log.team) }}
                   />
                   <div>
                     <b>Nhóm {log.team}</b>

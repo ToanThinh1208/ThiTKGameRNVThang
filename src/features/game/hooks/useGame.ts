@@ -20,8 +20,8 @@ import {
 
 export function useGame() {
   const [screen, setScreen] = useState<ScreenState>("setup");
-  const [count, setCount] = useState(4);
-  const [teams, setTeams] = useState<Team[]>(makeTeams(4));
+  const [count, setCount] = useState(6);
+  const [teams, setTeams] = useState<Team[]>(makeTeams(6));
   const [turn, setTurn] = useState(0);
   const [round, setRound] = useState(1);
   const [die, setDie] = useState(5);
